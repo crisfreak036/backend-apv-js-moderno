@@ -1,6 +1,8 @@
 import express from 'express';
-import dotenv from 'dotenv'
-import connectDB from "./config/db.js"
+import dotenv from 'dotenv';
+import connectDB from "./config/db.js";
+
+import veterinarioRoutes from './routes/veterinarioRoutes.js'
 
 let port = process.env.PORT || 4005;
 
@@ -12,6 +14,8 @@ connectDB();
 app.use("/", (req, res) => {
     res.send("Hola Mundo");
 });
+
+app.use("api/veterinarios", veterinarioRoutes);
 
 app.listen(port, () => {
     console.log('Servidor funcionando en http://localhost:4005');
