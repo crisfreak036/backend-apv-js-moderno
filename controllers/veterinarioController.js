@@ -1,10 +1,10 @@
 
 const registrar = (req, res, next) => {
-    res.send('Veterinarios');
+    res.json({message:'Registrando Usuario...'});
 }
 
 const perfil = (req, res, next) => {
-    res.send('Perfil');
+    res.json({message:'Mostrando Perfil'});
 }
 
 export {
