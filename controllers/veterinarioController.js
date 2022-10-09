@@ -32,7 +32,13 @@ const perfil = (req, res, next) => {
     res.json({message:'Mostrando Perfil'});
 }
 
+const confirmar = (req, res, next) => {
+    const { token } = req.params;
+    res.status(200).json({code: 200, error: false, message:'Confirmando Usuario...', data: token});
+}
+
 export {
     registrar,
-    perfil
+    perfil,
+    confirmar
 }
