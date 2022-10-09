@@ -32,9 +32,26 @@ const perfil = (req, res, next) => {
     res.json({message:'Mostrando Perfil'});
 }
 
-const confirmar = (req, res, next) => {
+const confirmar = async (req, res, next) => {
     const { token } = req.params;
-    res.status(200).json({code: 200, error: false, message:'Confirmando Usuario...', data: token});
+
+    try {
+        // Se busca al usuario por su token
+        const usuario = await Veterinario.findOne({token: token});
+        if (!usuario) {
+            return res.status(404).json({ code: 404, error: true, message: "Not Found",data: undefined });
+        }
+
+        usuario.token = null; // Se cambia el valor del token a null 
+        usuario.confirmado = true; // Se cambiar a true el atributo confirmado
+        await usuario.save(); // Se guardan los cambios
+
+        res.status(200).json({code: 200, error: false, message: 'Usuario confirmado correctamente', data: {id: usuario._id}});
+    } catch (error) {
+        console.log(error);
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+    }
+
 }
 
 export {
