@@ -7,6 +7,9 @@ import veterinarioRoutes from './routes/veterinarioRoutes.js'
 let port = process.env.PORT || 4005;
 
 const app = express(); // Almacena toda la funcionalidad del servidor
+
+app.use(express.json()); // Se da a entender que el envío de datos será mediante JSON
+
 dotenv.config();
 
 connectDB();
