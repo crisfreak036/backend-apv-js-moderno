@@ -54,8 +54,14 @@ const confirmar = async (req, res, next) => {
 
 }
 
+const autenticar = (req, res, next) => {
+    const { email, password } = req.body;
+    res.json({message:'autenticando...', data: {email, password}});
+}
+
 export {
     registrar,
     perfil,
-    confirmar
+    confirmar,
+    autenticar
 }
