@@ -54,8 +54,34 @@ const confirmar = async (req, res, next) => {
 
 }
 
-const autenticar = (req, res, next) => {
+const autenticar = async (req, res, next) => {
     const { email, password } = req.body;
+    try {
+        // Comprobar la existencia de un Usuario
+        const usuario = await Veterinario.findOne({email: email});
+        if (!usuario) {
+            console.log('El usuario no existe');
+            return res.status(403).json({ code: 403, error: true, message: "Not Authorized",data: undefined });
+        }
+
+        // Se comprueba que sea un usuario confirmado
+        if (!usuario.confirmado) {
+            console.log('Usuario sin confirmar');
+            return res.status(403).json({ code: 403, error: true, message: "Not Authorized",data: undefined });
+        }
+
+        // Se comprueba que la password sea la correcta
+        const contraseñaEsCorrecta = await usuario.comprobarPassword(password);
+        if (!contraseñaEsCorrecta) {
+            console.log('Contraseña Incorrecta');
+            return res.status(403).json({ code: 403, error: true, message: "Not Authorized",data: undefined });
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+    }
+
     res.json({message:'autenticando...', data: {email, password}});
 }
 
