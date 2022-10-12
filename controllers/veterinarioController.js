@@ -30,7 +30,7 @@ const registrar = async (req, res, next) => {
 }
 
 const perfil = (req, res, next) => {
-    res.json({message:'Mostrando Perfil'});
+    res.json({message:'Mostrando Perfil', user: req.user});
 }
 
 const confirmar = async (req, res, next) => {
