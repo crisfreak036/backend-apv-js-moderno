@@ -1,4 +1,5 @@
-import Veterinario from '../models/Veterinario.js'
+import Veterinario from '../models/Veterinario.js';
+import generarJWT from '../helpers/generarJWT.js';
 
 const registrar = async (req, res, next) => {
     const { body } = req;
@@ -76,13 +77,15 @@ const autenticar = async (req, res, next) => {
             console.log('Contraseña Incorrecta');
             return res.status(403).json({ code: 403, error: true, message: "Not Authorized",data: undefined });
         }
+
+        // Autenticar
+        const jwt = generarJWT({sub: usuario._id});
+        res.status(200).json({code: 200, error: false, message: 'Usuario autenticado correctamente', data: {jwt: jwt}});
         
     } catch (error) {
         console.log(error);
         res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
     }
-
-    res.json({message:'autenticando...', data: {email, password}});
 }
 
 export {
