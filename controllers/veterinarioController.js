@@ -108,8 +108,10 @@ const olvidePassword = async (req, res, next) => {
         if (!usuario.confirmado) {
             return res.status(400).json({ code: 400, error: true, message: "Confirmation is required", data: undefined });
         }
+
         usuario.token = generarId();
-        usuario.save();
+        await usuario.save();
+
         res.status(200).json({code: 200, error: false, message: 'Correo de recuperación enviado', data: undefined});
     } catch (error) {
         console.log(error);
@@ -118,7 +120,22 @@ const olvidePassword = async (req, res, next) => {
     
 }
 
-const comprobarToken = (req, res, next) => {
+const comprobarToken = async (req, res, next) => {
+    const { token } = req.params;
+
+    try {
+        // Se busca al usuario por su token
+        const usuario = await Veterinario.findOne({token: token});
+        if (!usuario) {
+            return res.status(404).json({ code: 404, error: true, message: "Invalid Token",data: undefined });
+        }
+
+        res.status(200).json({code: 200, error: false, message: 'Puede cambiar la contraseña', data: undefined});
+    } catch (error) {
+        console.log(error);
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+    }
+
     res.json({message:'Ya mande mi token'});
 }
 
