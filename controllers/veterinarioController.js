@@ -136,11 +136,32 @@ const comprobarToken = async (req, res, next) => {
         res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
     }
 
-    res.json({message:'Ya mande mi token'});
 }
 
-const nuevoPassword = (req, res, next) => {
-    res.json({message:'Toca resetear edl password'});
+const nuevoPassword = async (req, res, next) => {
+
+    const { token } = req.params;
+    const bodyKeys = Object.keys(req.body);
+    if (!bodyKeys.includes('password') || bodyKeys.length > 1) return res.status(400).json({ code: 400, error: true, data: undefined });
+
+    const { password } = req.body;
+
+    try {
+        const usuario = await Veterinario.findOne({token: token});
+        if (!usuario) {
+            return res.status(404).json({ code: 404, error: true, message: "Invalid Token",data: undefined });
+        }
+
+        usuario.token = null;
+        usuario.password = password;
+        await usuario.save();
+
+
+        res.status(200).json({code: 200, error: false, message: 'Contraseña  Cambiada', data: undefined});
+    } catch (error) {
+        console.log(error);
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+    }
 }
 
 export {
