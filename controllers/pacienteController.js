@@ -5,9 +5,9 @@ const obtenerPacientes = async (req, res, next) => {
 
     try {
         // Busca los pacientes relacionado al veterinario que consulta el endpoint
-        const pacientes = await Paciente.find({veterinario: user._id});
+        const pacientes = await Paciente.find().where('veterinario').equals(user);
 
-        if (pacientes.length === 0)  return res.status(404).json({ code: 404, error: true, message: "Este Veterinario no tiene pacientes", data: undefined });
+        if (pacientes.length === 0)  return res.status(404).json({ code: 404, error: true, message: "Este Veterinario no tiene pacientes", data: [] });
 
         res.status(200).json({ code: 200, error: false, message: "ok", data: pacientes });
     } catch (error) {
