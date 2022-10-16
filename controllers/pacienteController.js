@@ -12,7 +12,7 @@ const obtenerPacientes = async (req, res, next) => {
         res.status(200).json({ code: 200, error: false, message: "ok", data: pacientes });
     } catch (error) {
         console.log(error);
-        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: [] });
     }
 }
 
@@ -21,12 +21,12 @@ const agregarPaciente = async (req, res, next) => {
 
     // Comprueba que el body tenga información (se puede utilizar JOI para validar elementos de la req)
     if (Object.keys(body).length === 0) {
-        return res.status(400).json({ code: 400, error: true, data: undefined });
+        return res.status(400).json({ code: 400, error: true, data: {} });
     }
 
     const { nombre, propietario, email, sintomas } = body;
 
-    if ([nombre, propietario, email, sintomas].includes(undefined)) return res.status(400).json({ code: 400, error: true, data: undefined });
+    if ([nombre, propietario, email, sintomas].includes(undefined)) return res.status(400).json({ code: 400, error: true, data: {} });
 
     try {
         // Crea al usuario
@@ -35,7 +35,7 @@ const agregarPaciente = async (req, res, next) => {
         res.status(201).json({ code: 201, error: false, message: "ok", data: pacienteGuardado });
     } catch (error) {
        console.log(error);
-       res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+       res.status(422).json({ code: 422, error: true, message: "Something wrong",data: {} });
     }
 }
 
@@ -49,7 +49,7 @@ const obtenerPaciente = async (req, res, next) => {
         res.status(200).json({ code: 200, error: false, message: "ok", data: paciente });
     } catch (error) {
         console.log(error);
-        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: {} });
     }
 }
 
@@ -59,7 +59,7 @@ const actualizarPaciente = async (req, res, next) => {
     const { body } = req;
 
     if (Object.keys(body).length === 0) {
-        return res.status(400).json({ code: 400, error: true, data: undefined });
+        return res.status(400).json({ code: 400, error: true, data: {} });
     }
 
     try {
@@ -74,27 +74,28 @@ const actualizarPaciente = async (req, res, next) => {
 
         const pacienteActualizado = await paciente.save();
 
-        res.status(200).json({ code: 200, error: false, message: "ok", data: pacienteActualizado });
+        res.status(200).json({ code: 200, error: false, message: "Paciente Actualizado", data: pacienteActualizado });
     } catch (error) {
         console.log(error);
-        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: {} });
     }
 }
 
 const eliminarPaciente = async (req, res, next) => {
     const { id } = req.params;
+    const { user } = req;
 
     try {
         const paciente = await Paciente.findById(id);
-
         if (!paciente)  return res.status(404).json({ code: 404, error: true, message: "Paciente no encontrado", data: {} });
+        if (paciente.veterinario._id.toString() !== user._id.toString()) return res.status(403).json({ code: 403, error: true, message: "Acción no valida", data: {} });
 
-        // await paciente.delete();
+        await paciente.deleteOne();
 
-        res.status(200).json({ code: 200, error: false, message: "ok", data: paciente });
+        res.status(200).json({ code: 200, error: false, message: "Paciente Eliminado", data: {} });
     } catch (error) {
         console.log(error);
-        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: {} });
     }
 }
 
