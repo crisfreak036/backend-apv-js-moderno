@@ -44,7 +44,6 @@ const obtenerPaciente = async (req, res, next) => {
     const { user } = req;
     try {
         const paciente = await Paciente.findById(id);
-        console.log(paciente);
         if (!paciente)  return res.status(404).json({ code: 404, error: true, message: "Paciente no encontrado", data: {} });
         if (paciente.veterinario._id.toString() !== user._id.toString()) return res.status(403).json({ code: 403, error: true, message: "Acción no valida", data: {} });
         res.status(200).json({ code: 200, error: false, message: "ok", data: paciente });
@@ -56,6 +55,7 @@ const obtenerPaciente = async (req, res, next) => {
 
 const actualizarPaciente = async (req, res, next) => {
     const { id } = req.params;
+    const { user } = req;
     const { body } = req;
 
     if (Object.keys(body).length === 0) {
@@ -63,14 +63,18 @@ const actualizarPaciente = async (req, res, next) => {
     }
 
     try {
-        let paciente = await Paciente.findById(id);
+        const paciente = await Paciente.findById(id);
         if (!paciente)  return res.status(404).json({ code: 404, error: true, message: "Paciente no encontrado", data: {} });
+        if (paciente.veterinario._id.toString() !== user._id.toString()) return res.status(403).json({ code: 403, error: true, message: "Acción no valida", data: {} });
 
-        const newData = {...paciente, ...body};
-        paciente = {...newData};
-        // await paciente.save();
+        for (const campo in body) {
+            if (paciente[campo] === undefined) continue;
+            paciente[campo] = body[campo];
+        }
 
-        res.status(200).json({ code: 200, error: false, message: "ok", data: newData });
+        const pacienteActualizado = await paciente.save();
+
+        res.status(200).json({ code: 200, error: false, message: "ok", data: pacienteActualizado });
     } catch (error) {
         console.log(error);
         res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
