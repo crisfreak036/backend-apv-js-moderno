@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import connectDB from "./config/db.js";
 
 import veterinarioRoutes from './routes/veterinarioRoutes.js'
@@ -14,6 +15,21 @@ app.use(express.json()); // Se da a entender que el envío de datos será median
 dotenv.config();
 
 connectDB();
+
+const dominiosPermitidos = [process.env.FRONTEND_URL];
+
+const corsOptions = {
+    // Verifica que dominio está realizando la petición
+    origin: function(origin, callback) {
+        if(dominiosPermitidos.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido'));
+        }
+    }
+}
+
+app.use(cors(corsOptions));
 
 app.use("/api/veterinarios", veterinarioRoutes);
 app.use("/api/pacientes", pacienteRoutes);
