@@ -1,6 +1,7 @@
 import Veterinario from '../models/Veterinario.js';
 import generarJWT from '../helpers/generarJWT.js';
 import generarId from "../helpers/generarId.js";
+import emailRegistro from "../helpers/emailRegistro.js";
 
 const registrar = async (req, res, next) => {
     const { body } = req;
@@ -15,15 +16,22 @@ const registrar = async (req, res, next) => {
     // Comprueba que el usuario exista previamente
     const usuario = await Veterinario.findOne({email: email});
     if (usuario) {
-        return res.status(400).json({ code: 400, error: true, message: "user already exists", data: undefined });
+        return res.status(400).json({ code: 400, error: true, message: "El Usuario Ya Existe", data: undefined });
     }
-
 
     try {
         // Crea al usuario
         const veterinario = new Veterinario(body);
         const veterinarioGuardado = await veterinario.save();
-        res.status(201).json({ code: 201, error: false, message: "ok",data: veterinarioGuardado });
+
+        // Enviar Correo con el código único
+        emailRegistro({
+            email,
+            nombre, 
+            token: veterinario.token
+        })
+
+        res.status(201).json({ code: 201, error: false, message: "Veterinario Creado Correctamente", data: undefined });
     } catch (error) {
        console.log(error);
        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
@@ -41,7 +49,7 @@ const confirmar = async (req, res, next) => {
         // Se busca al usuario por su token
         const usuario = await Veterinario.findOne({token: token});
         if (!usuario) {
-            return res.status(404).json({ code: 404, error: true, message: "Not Found",data: undefined });
+            return res.status(404).json({ code: 404, error: true, message: "Error en la Confirmación",data: undefined });
         }
 
         usuario.token = null; // Se cambia el valor del token a null 
