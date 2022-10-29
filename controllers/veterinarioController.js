@@ -2,6 +2,7 @@ import Veterinario from '../models/Veterinario.js';
 import generarJWT from '../helpers/generarJWT.js';
 import generarId from "../helpers/generarId.js";
 import emailRegistro from "../helpers/emailRegistro.js";
+import emailOlvidePassword from "../helpers/emailOlvidePassword.js";
 
 const registrar = async (req, res, next) => {
     const { body } = req;
@@ -110,20 +111,27 @@ const olvidePassword = async (req, res, next) => {
     try {
         const usuario = await Veterinario.findOne({email: email});
         if (!usuario) {
-            return res.status(404).json({ code: 404, error: true, message: "Not Found", data: undefined });
+            return res.status(404).json({ code: 404, error: true, message: "Usuario no Existe", data: undefined });
         }
 
         if (!usuario.confirmado) {
-            return res.status(400).json({ code: 400, error: true, message: "Confirmation is required", data: undefined });
+            return res.status(400).json({ code: 400, error: true, message: "Usuario sin Confirmar", data: undefined });
         }
 
         usuario.token = generarId();
         await usuario.save();
 
-        res.status(200).json({code: 200, error: false, message: 'Correo de recuperación enviado', data: undefined});
+        // Enviar email con las instrucciones para reestablecer contraseña
+        emailOlvidePassword({
+            email,
+            nombre: usuario.nombre,
+            token: usuario.token
+        })
+
+        res.status(200).json({code: 200, error: false, message: 'Para continuar el proceso, revisa tu correo.', data: undefined});
     } catch (error) {
         console.log(error);
-        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+        res.status(422).json({ code: 422, error: true, message: "Algo a Salido Mal",data: undefined });
     }
     
 }
@@ -157,7 +165,7 @@ const nuevoPassword = async (req, res, next) => {
     try {
         const usuario = await Veterinario.findOne({token: token});
         if (!usuario) {
-            return res.status(404).json({ code: 404, error: true, message: "Invalid Token",data: undefined });
+            return res.status(404).json({ code: 404, error: true, message: "Token Invalido",data: undefined });
         }
 
         usuario.token = null;
@@ -168,7 +176,7 @@ const nuevoPassword = async (req, res, next) => {
         res.status(200).json({code: 200, error: false, message: 'Contraseña  Cambiada', data: undefined});
     } catch (error) {
         console.log(error);
-        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+        res.status(422).json({ code: 422, error: true, message: "Algo Salió Mal",data: undefined });
     }
 }
 
