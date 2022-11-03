@@ -72,20 +72,20 @@ const autenticar = async (req, res, next) => {
         const usuario = await Veterinario.findOne({email: email});
         if (!usuario) {
             console.log('El usuario no existe');
-            return res.status(403).json({ code: 403, error: true, message: "Not Authorized",data: undefined });
+            return res.status(404).json({ code: 404, error: true, message: "Usuario o Password Incorrectos",data: undefined });
         }
 
         // Se comprueba que sea un usuario confirmado
         if (!usuario.confirmado) {
             console.log('Usuario sin confirmar');
-            return res.status(403).json({ code: 403, error: true, message: "Not Authorized",data: undefined });
+            return res.status(404).json({ code: 404, error: true, message: "Procure confirmar su cuenta antes de iniciar sesión",data: undefined });
         }
 
         // Se comprueba que la password sea la correcta
         const contraseñaEsCorrecta = await usuario.comprobarPassword(password);
         if (!contraseñaEsCorrecta) {
             console.log('Contraseña Incorrecta');
-            return res.status(403).json({ code: 403, error: true, message: "Not Authorized",data: undefined });
+            return res.status(404).json({ code: 404, error: true, message: "Usuario o Password Incorrectos",data: undefined });
         }
 
         // Autenticar
@@ -94,7 +94,7 @@ const autenticar = async (req, res, next) => {
         
     } catch (error) {
         console.log(error);
-        res.status(422).json({ code: 422, error: true, message: "Something wrong",data: undefined });
+        res.status(422).json({ code: 422, error: true, message: "Algo ha salido mal, contactar con soporte ",data: undefined });
     }
 }
 
