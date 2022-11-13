@@ -24,13 +24,13 @@ const agregarPaciente = async (req, res, next) => {
         return res.status(400).json({ code: 400, error: true, data: {} });
     }
 
-    const { nombre, propietario, email, sintomas } = body;
+    const { nombre, propietario, email, fechaDeIngreso, fechaDeAlta, sintomas } = body;
 
     if ([nombre, propietario, email, sintomas].includes(undefined)) return res.status(400).json({ code: 400, error: true, data: {} });
 
     try {
         // Crea al usuario
-        const paciente = new Paciente({nombre, propietario, email, sintomas, veterinario: user._id});
+        const paciente = new Paciente({nombre, propietario, email, fechaDeIngreso, fechaDeAlta, sintomas, veterinario: user._id});
         const pacienteGuardado = await paciente.save();
         res.status(201).json({ code: 201, error: false, message: "ok", data: pacienteGuardado });
     } catch (error) {
