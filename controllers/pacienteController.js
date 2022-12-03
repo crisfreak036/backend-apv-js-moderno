@@ -68,7 +68,10 @@ const actualizarPaciente = async (req, res, next) => {
         if (paciente.veterinario._id.toString() !== user._id.toString()) return res.status(403).json({ code: 403, error: true, message: "Acción no valida", data: {} });
 
         for (const campo in body) {
-            if (paciente[campo] === undefined) continue;
+            if (['', null].includes(body[campo])) {
+                paciente[campo] = null;
+                continue;
+            }
             paciente[campo] = body[campo];
         }
 
