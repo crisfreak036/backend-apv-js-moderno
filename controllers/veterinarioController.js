@@ -180,6 +180,49 @@ const nuevoPassword = async (req, res, next) => {
     }
 }
 
+const actualizarPerfil = async (req, res, next) => {
+    const { id } = req.params;
+    const { body } = req;
+    
+    if (Object.keys(body).length === 0) {
+        return res.status(400).json({ code: 400, error: true, data: {} });
+    }
+
+    try {
+        const usuario = await Veterinario.findById(id).select("-confirmado -password -token -__v");
+        if (!usuario) {
+            return res.status(404).json({ code: 404, error: true, message: "Error en la actualización",data: undefined });
+        }
+
+        // Comprueba que el mail que se quiere utilizar no se encuentre en uso
+        const { email } = body;
+        if (usuario.email !== email) {
+            const existeEmail = await Veterinario.findOne({email});
+            if (existeEmail) {
+                return res.status(400).json({ code: 404, error: true, message: "Error al actualizar el correo",data: undefined })
+            }
+        }
+
+        // Actualiza los campos
+        for (const campo in body) {
+            if (['', null].includes(body[campo])) {
+                usuario[campo] = null;
+                continue;
+            }
+            usuario[campo] = body[campo];
+        }
+
+        const usuarioActualizado = await usuario.save();
+
+        res.status(200).json({ code: 200, error: false, message: "Usuario Actualizado Correctamente", data: usuarioActualizado });
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(404).json({ code: 404, error: true, message: "Error en la actualización",data: undefined });
+    }
+    
+}
+
 export {
     registrar,
     perfil,
@@ -187,5 +230,6 @@ export {
     autenticar,
     olvidePassword,
     comprobarToken,
-    nuevoPassword
+    nuevoPassword,
+    actualizarPerfil
 }
