@@ -82,8 +82,8 @@ const autenticar = async (req, res, next) => {
         }
 
         // Se comprueba que la password sea la correcta
-        const contraseñaEsCorrecta = await usuario.comprobarPassword(password);
-        if (!contraseñaEsCorrecta) {
+        const passwordEsCorrecta = await usuario.comprobarPassword(password);
+        if (!passwordEsCorrecta) {
             console.log('Contraseña Incorrecta');
             return res.status(404).json({ code: 404, error: true, message: "Usuario o Password Incorrectos",data: undefined });
         }
@@ -227,6 +227,36 @@ const actualizarPerfil = async (req, res, next) => {
     
 }
 
+const actualizarPassword = async (req, res, next) => {
+    const { id } = req.params;
+    const { body } = req;
+
+    if (Object.keys(body).length === 0) {
+        return res.status(400).json({ code: 400, error: true, data: {} });
+    }
+
+    try {
+        // Buscar al usuario
+        const usuario = await Veterinario.findById(id).select("-confirmado -token -__v");
+        if (!usuario) {
+            return res.status(404).json({ code: 404, error: true, message: "Error en la actualización",data: undefined });
+        }
+
+        const { password, nuevaPassword } = body;
+        // Validar que la contraseña que ingresó coincide con la actual
+        const passwordEsCorrecta = await usuario.comprobarPassword(password);
+        if (!passwordEsCorrecta) return res.status(404).json({ code: 404, error: true, message: "Password Actual Incorrecta",data: undefined });
+
+        // Actualizar la contraseña
+        usuario.password = nuevaPassword;
+        await usuario.save()
+        return res.status(200).json({ code: 200, error: false, message: "Password Actualizado Correctamente", data: undefined });
+    } catch (error) {
+        console.log(error);
+        return res.status(404).json({ code: 404, error: true, message: "Error en la actualización",data: undefined });
+    }
+}
+
 export {
     registrar,
     perfil,
@@ -235,5 +265,6 @@ export {
     olvidePassword,
     comprobarToken,
     nuevoPassword,
-    actualizarPerfil
+    actualizarPerfil,
+    actualizarPassword
 }
