@@ -88,9 +88,13 @@ const autenticar = async (req, res, next) => {
             return res.status(404).json({ code: 404, error: true, message: "Usuario o Password Incorrectos",data: undefined });
         }
 
+        delete usuario.confirmado;
+        delete usuario.token;
+        delete usuario.password;
+
         // Autenticar
         const jwt = generarJWT({sub: usuario._id});
-        res.status(200).json({code: 200, error: false, message: 'Usuario autenticado correctamente', data: {jwt: jwt}});
+        res.status(200).json({code: 200, error: false, message: 'Usuario autenticado correctamente', data: {jwt: jwt, usuario}});
         
     } catch (error) {
         console.log(error);
