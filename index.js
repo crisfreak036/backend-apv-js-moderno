@@ -6,7 +6,7 @@ import connectDB from "./config/db.js";
 import veterinarioRoutes from './routes/veterinarioRoutes.js'
 import pacienteRoutes from './routes/pacienteRoutes.js'
 
-let port = process.env.PORT || 4005;
+let port = process.env.PORT || 3001;
 
 const app = express(); // Almacena toda la funcionalidad del servidor
 
@@ -36,5 +36,5 @@ app.use("/api/pacientes", pacienteRoutes);
 
 
 app.listen(port, () => {
-    console.log('Servidor funcionando en http://localhost:4005');
+    console.log('Servidor funcionando');
 }) // El servidor queda escuchando las peticiones que llegan al puerto indicado
